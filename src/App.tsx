@@ -272,20 +272,22 @@ export default function App() {
                       <Database className="w-4.5 h-4.5 text-slate-500" />
                       <span>Riwayat Terdahulu</span>
                     </button>
-                    <button
-                      onClick={() => {
-                        setCurrentTab("google_sheets");
-                        setIsMoreOpen(false);
-                      }}
-                      className={`flex items-center gap-2.5 p-3 rounded-xl border text-left text-xs font-bold transition-all ${
-                        currentTab === "google_sheets"
-                          ? "bg-blue-50 text-blue-700 border-blue-200"
-                          : "bg-slate-50 hover:bg-slate-100 border-transparent text-slate-700"
-                      }`}
-                    >
-                      <FileSpreadsheet className="w-4.5 h-4.5 text-slate-500" />
-                      <span>Google Sheets</span>
-                    </button>
+                    {hasRole(["Administrator"]) && (
+                      <button
+                        onClick={() => {
+                          setCurrentTab("google_sheets");
+                          setIsMoreOpen(false);
+                        }}
+                        className={`flex items-center gap-2.5 p-3 rounded-xl border text-left text-xs font-bold transition-all ${
+                          currentTab === "google_sheets"
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : "bg-slate-50 hover:bg-slate-100 border-transparent text-slate-700"
+                        }`}
+                      >
+                        <FileSpreadsheet className="w-4.5 h-4.5 text-slate-500" />
+                        <span>Google Sheets</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -391,26 +393,28 @@ export default function App() {
                 )}
 
                 {/* Section: Testing & Integrasi */}
-                <div className="space-y-1.5">
-                  <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider block px-1">Testing & Integrasi</span>
-                  <button
-                    onClick={() => {
-                      setCurrentTab("supabase_tester");
-                      setIsMoreOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left text-xs font-bold transition-all ${
-                      currentTab === "supabase_tester"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                        : "bg-slate-50 hover:bg-slate-100 border-transparent text-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Terminal className="w-4.5 h-4.5 text-emerald-600" />
-                      <span>Supabase Tester</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </button>
-                </div>
+                {hasRole(["Administrator"]) && (
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider block px-1">Testing & Integrasi</span>
+                    <button
+                      onClick={() => {
+                        setCurrentTab("supabase_tester");
+                        setIsMoreOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left text-xs font-bold transition-all ${
+                        currentTab === "supabase_tester"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : "bg-slate-50 hover:bg-slate-100 border-transparent text-slate-700"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Terminal className="w-4.5 h-4.5 text-emerald-600" />
+                        <span>Supabase Tester</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Action: Log Out */}

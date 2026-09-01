@@ -53,7 +53,7 @@ export default function Sidebar({ currentUser, currentTab, setTab, onLogout }: S
       items: [
         { id: "riwayat_24h", label: "Riwayat (24 Jam)", icon: History, roles: ["Administrator", "Supervisor", "Packing"] },
         { id: "riwayat_all", label: "Riwayat Terdahulu", icon: Database, roles: ["Administrator", "Supervisor", "Packing"] },
-        { id: "google_sheets", label: "Google Sheets", icon: FileSpreadsheet, roles: ["Administrator", "Supervisor", "Packing"] },
+        { id: "google_sheets", label: "Google Sheets", icon: FileSpreadsheet, roles: ["Administrator"] },
       ]
     },
     {
@@ -75,8 +75,9 @@ export default function Sidebar({ currentUser, currentTab, setTab, onLogout }: S
     },
     {
       category: "Testing & Integrasi",
+      roles: ["Administrator"],
       items: [
-        { id: "supabase_tester", label: "Supabase Tester", icon: Terminal, roles: ["Administrator", "Supervisor", "Packing"] },
+        { id: "supabase_tester", label: "Supabase Tester", icon: Terminal, roles: ["Administrator"] },
       ]
     }
   ];

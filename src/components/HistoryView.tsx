@@ -168,12 +168,18 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
     }
   };
 
-  const isFetchingRef = useState(false);
+  const requestSeqRef = useRef(0);
+  const isFetchingRef = useRef(false);
 
   const fetchScans = async (isSilent = false) => {
+    if (isFetchingRef.current) return;
+    
+    const currentSeq = ++requestSeqRef.current;
+    
     if (!isSilent) setLoading(true);
     else setRefreshing(true);
 
+    isFetchingRef.current = true;
     try {
       // If role is Packing, limit records to their own scans only
       const isPacking = currentUser.role && currentUser.role.toLowerCase() === "packing";
@@ -181,10 +187,11 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
       const res = await fetch(getApiUrl(`/api/scans?range=${range}${userFilter}`));
       if (res.ok) {
         let data = await res.json();
-        if (Array.isArray(data)) {
+        // Only update state if this is still the most recent request
+        if (currentSeq === requestSeqRef.current && Array.isArray(data)) {
           if (isPacking) {
             const userIdentifiers = getUserIdentifiers(currentUser);
-            data = data.filter(s => isScanOwnedByUser(s, userIdentifiers));
+            data = data.filter((s: ScanRecord) => isScanOwnedByUser(s, userIdentifiers));
           }
           setScans(data);
           setCurrentPage(1); // Reset page on refresh
@@ -196,8 +203,11 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
     } catch (e: any) {
       if (!isSilent) showToast("error", "Gagal menghubungi database backend Supabase");
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (currentSeq === requestSeqRef.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
+      isFetchingRef.current = false;
     }
   };
 
