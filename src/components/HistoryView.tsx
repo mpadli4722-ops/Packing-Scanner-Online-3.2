@@ -620,7 +620,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div>
           <h1 className="text-xl font-bold text-slate-800" id="hist-title-h1">
-            {range === "latest24h" ? "Riwayat Scan Terbaru (24 Jam)" : "Riwayat Scan Terdahulu (Semua Waktu)"}
+            {range === "latest24h" ? "Riwayat Scan Terbaru (Hari Ini)" : "Riwayat Scan Terdahulu (Semua Waktu)"}
           </h1>
           <p className="text-slate-500 text-xs">
             {range === "latest24h" 
