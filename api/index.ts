@@ -1128,59 +1128,41 @@ app.get("/api/dashboard/stats", async (req: Request, res: Response) => {
 // 5. GET /api/scans
 app.get("/api/scans", async (req: Request, res: Response) => {
   try {
-    const p = getPool() as any;
-    const supabase = p.supabaseClient;
-
+    const p = getPool();
     const id = (req.query.id || req.params.id) as string | undefined;
 
     if (id) {
-      const { data, error } = await supabase.from("scans").select("*").eq("id", id).limit(1);
-      if (error) throw new Error(error.message);
-      if (!data || data.length === 0) {
+      const [rows]: any = await p.query("SELECT * FROM scans WHERE id = ? LIMIT 1", [id]);
+      if (!rows || rows.length === 0) {
         return res.status(404).json({ message: "Data scan tidak ditemukan!" });
       }
-      return res.json(data[0]);
+      return res.json(rows[0]);
     }
 
     const { range, username } = req.query;
-    
-    let query = supabase.from("scans").select("*");
+    let sql = "SELECT * FROM scans WHERE 1=1";
+    const params: any[] = [];
 
     if (username) {
       const target = (username as string).trim().toLowerCase();
-      // Resolve user IDs matching username target
-      const { data: matchedUsers } = await supabase.from("users").select("id")
-        .or(`username.ilike.%${target}%,name.ilike.%${target}%`);
-      
-      const userIds = (matchedUsers || []).map((u: any) => u.id);
-      let orFilter = `userName.ilike.%${target}%,user_name.ilike.%${target}%`;
-      if (userIds.length > 0) {
-        orFilter += `,user_id.in.(${userIds.join(',')}),userId.in.(${userIds.join(',')})`;
-      }
-      query = query.or(orFilter);
+      sql += " AND (LOWER(userName) = ? OR userId IN (SELECT id FROM users WHERE LOWER(username) = ? OR LOWER(name) = ?))";
+      params.push(target, target, target);
     }
 
-    const info = getWIBDateTimeString();
-    
+    sql += " ORDER BY waktu DESC, id DESC";
+    const [rows]: any = await p.query(sql, params);
+
+    // FILTER MANUAL UNTUK 24 JAM TERBARU (Akurat)
+    let finalRows = rows || [];
     if (range === "latest24h") {
-      // Hari ini (WIB) dari 00:00:00 sampai 23:59:59
-      query = query.ilike("waktu", `${info.ymd}%`);
-    } else if (range === "all" || range === "latest30d") {
-      // Riwayat terdahulu: Semua hari SEBELUM hari ini
-      // Supabase supports not.ilike, which excludes today
-      query = query.not("waktu", "ilike", `${info.ymd}%`);
+      const info = getWIBDateTimeString();
+      finalRows = finalRows.filter((s: any) => s && s.waktu && String(s.waktu).startsWith(info.ymd));
     }
-
-    // Order by waktu and limit to prevent massive payload
-    query = query.order("waktu", { ascending: false }).order("id", { ascending: false }).limit(2000);
-
-    const { data: rows, error } = await query;
-    if (error) throw new Error(error.message);
 
     // Build user map to resolve missing user names
     const userMap: { [key: string]: string } = {};
-    const { data: allUsers } = await supabase.from("users").select("id, name, username");
-    
+    const [allUsers]: any = await p.query("SELECT id, name, username FROM users");
+
     if (Array.isArray(allUsers)) {
       allUsers.forEach((u: any) => {
         const displayName = u.name || u.username;
@@ -1193,24 +1175,16 @@ app.get("/api/scans", async (req: Request, res: Response) => {
       });
     }
 
-    const processedRows = (rows || []).map((s: any) => {
-      // Copy normalization logic from DbDriver
-      const row = { ...s };
-      if (row.user_id && !row.userId) row.userId = row.user_id;
-      if (row.userId && !row.user_id) row.user_id = row.userId;
-      if (row.user_name && !row.userName) row.userName = row.user_name;
-      if (row.userName && !row.user_name) row.user_name = row.userName;
-      
-      return {
-        ...row,
-        userName: resolveScanUserName(row, userMap)
-      };
-    });
+    const processedRows = finalRows.map((s: any) => ({
+      ...s,
+      userName: resolveScanUserName(s, userMap)
+    }));
 
     return res.json(processedRows);
+
   } catch (err: any) {
-    console.error("[DB ERROR] Error in get scans endpoint:", err?.message || err);
-    return res.status(500).json({ message: "Internal Server Error: Gagal mengambil riwayat scan", error: err?.message });
+    console.error("[DB ERROR] Error in get scans endpoint:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
