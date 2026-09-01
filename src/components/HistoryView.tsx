@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getApiUrl } from "../lib/api";
 import { 
   Search, 
