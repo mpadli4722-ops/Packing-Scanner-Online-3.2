@@ -562,6 +562,20 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
     }
   };
 
+  const getVisiblePages = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, 5];
+    }
+    if (currentPage >= totalPages - 2) {
+      return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
+  };
+  const visiblePages = getVisiblePages();
+
   // Selection Helper Methods
   const toggleSelectScan = (id: string) => {
     setSelectedScanIds(prev =>
@@ -1190,8 +1204,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const pageNum = i + 1;
+              {visiblePages.map((pageNum) => {
                 const isSelected = currentPage === pageNum;
                 return (
                   <button
