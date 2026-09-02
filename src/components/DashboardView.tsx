@@ -30,6 +30,7 @@ export default function DashboardView({ onScanClick, currentUser }: DashboardVie
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [chartMounted, setChartMounted] = useState(false);
 
   const isFetchingRef = useRef(false);
   const requestSeqRef = useRef(0);
@@ -57,6 +58,7 @@ export default function DashboardView({ onScanClick, currentUser }: DashboardVie
         if (currentSeq === requestSeqRef.current) {
           setStats(data);
           setErrorMsg(null);
+          setTimeout(() => setChartMounted(true), 100);
         }
       } else {
         const errData = await res.json().catch(() => ({}));
@@ -208,19 +210,23 @@ export default function DashboardView({ onScanClick, currentUser }: DashboardVie
 
             {/* Bars */}
             {(stats?.charts?.scanPerHari || []).map((day, i) => {
-              const barHeightPercent = Math.max(8, (day.total / maxScanHari) * 80);
+              const active = day.total > 0;
+              const barHeightPercent = active ? Math.max(8, (day.total / maxScanHari) * 80) : 0;
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2 group z-10">
-                  <div className="relative w-full flex justify-center">
-                    {/* Tooltip on hover */}
-                    <div className="absolute bottom-full mb-1 bg-slate-900 text-white font-mono text-[10px] font-bold px-1.5 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-20 pointer-events-none">
-                      {day.total} Paket
-                    </div>
+                <div key={i} className="flex-1 flex flex-col items-center justify-end gap-2 group z-10 h-full">
+                  <div className="relative w-full flex justify-center items-end h-full">
                     {/* Visual Bar */}
-                    <div 
-                      className="w-1/2 sm:w-1/3 bg-gradient-to-t from-blue-600 to-indigo-500 group-hover:from-blue-500 group-hover:to-indigo-400 rounded-t-lg transition-all duration-500 shadow-md shadow-blue-500/10 cursor-pointer"
-                      style={{ height: `${barHeightPercent}%` }}
-                    ></div>
+                    {active && (
+                      <div 
+                        className="relative w-1/2 sm:w-1/3 bg-gradient-to-t from-blue-600 to-indigo-500 group-hover:from-blue-500 group-hover:to-indigo-400 rounded-t-lg transition-all duration-700 ease-out shadow-md shadow-blue-500/10 cursor-pointer"
+                        style={{ height: chartMounted ? `${barHeightPercent}%` : '0%' }}
+                      >
+                        {/* Tooltip on hover */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-slate-900 text-white font-mono text-[10px] font-bold px-1.5 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-20 pointer-events-none">
+                          {day.total} Paket
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase font-mono tracking-tight">
                     {day.tanggal}
@@ -305,21 +311,20 @@ export default function DashboardView({ onScanClick, currentUser }: DashboardVie
             {/* Monthly Trend Blocks */}
             {(stats?.charts?.scanPerBulan || []).map((mon, i) => {
               const active = mon.total > 0;
-              const hPercent = active ? (mon.total / maxScanBulan) * 75 : 8;
+              const hPercent = active ? (mon.total / maxScanBulan) * 75 : 0;
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group z-10">
-                  <div className="relative w-full flex justify-center">
-                    <div className="absolute bottom-full mb-1 bg-slate-950 text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap z-20 pointer-events-none">
-                      {mon.total} Resi
-                    </div>
-                    <div 
-                      className={`w-4/5 rounded-t transition-all duration-500 ${
-                        active 
-                          ? "bg-emerald-500/80 group-hover:bg-emerald-400" 
-                          : "bg-slate-100"
-                      }`}
-                      style={{ height: `${hPercent}%` }}
-                    ></div>
+                <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1.5 group z-10 h-full">
+                  <div className="relative w-full flex justify-center items-end h-full">
+                    {active && (
+                      <div 
+                        className="relative w-4/5 rounded-t transition-all duration-700 ease-out bg-emerald-500/80 group-hover:bg-emerald-400"
+                        style={{ height: chartMounted ? `${hPercent}%` : '0%' }}
+                      >
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-slate-950 text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap z-20 pointer-events-none">
+                          {mon.total} Resi
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <span className="text-[9px] font-bold text-slate-400 font-mono">
                     {mon.bulan}
@@ -333,7 +338,7 @@ export default function DashboardView({ onScanClick, currentUser }: DashboardVie
         {/* Expedition Share (Progress bars style) */}
         <div className="p-6 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <h2 className="text-base font-bold text-slate-800 mb-1">Distribusi Expedisi Terbanyak</h2>
-          <p className="text-xs text-slate-500 mb-6">Pangsa mitra kurir logistik dari seluruh scan</p>
+          <p className="text-xs text-slate-500 mb-6">Pangsa mitra kurir logistik dari seluruh scan hari ini</p>
 
           <div className="space-y-4">
             {stats?.charts.expedisi && stats.charts.expedisi.length > 0 ? (
@@ -358,8 +363,8 @@ export default function DashboardView({ onScanClick, currentUser }: DashboardVie
                     </div>
                     <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                       <div 
-                        className={`h-full ${colorClass} rounded-full transition-all duration-700`}
-                        style={{ width: `${percentage}%` }}
+                        className={`h-full ${colorClass} rounded-full transition-all duration-1000 ease-out`}
+                        style={{ width: chartMounted ? `${percentage}%` : '0%' }}
                       ></div>
                     </div>
                   </div>

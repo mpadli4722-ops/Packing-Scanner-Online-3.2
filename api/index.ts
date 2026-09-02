@@ -1043,9 +1043,9 @@ app.get("/api/dashboard/stats", async (req: Request, res: Response) => {
 
     // 5. Scan Per Bulan (current year)
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-    const scanPerBulanMap: { [key: string]: number } = {
-      "01": 0, "02": 0, "03": 0, "04": 0, "05": 0, "06": 0, "07": 0, "08": 0, "09": 0, "10": 0, "11": 0, "12": 0
-    };
+    const monthKeys = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+    const scanPerBulanMap: { [key: string]: number } = {};
+    monthKeys.forEach(k => scanPerBulanMap[k] = 0);
 
     scansArr.forEach(s => {
       if (s && s.waktu && String(s.waktu).startsWith(currentYear)) {
@@ -1056,23 +1056,26 @@ app.get("/api/dashboard/stats", async (req: Request, res: Response) => {
       }
     });
 
-    const chartScanPerBulan = Object.keys(scanPerBulanMap).map(k => ({
-      bulan: monthNames[parseInt(k, 10) - 1],
+    const chartScanPerBulan = monthKeys.map((k, i) => ({
+      bulan: monthNames[i],
       total: scanPerBulanMap[k]
     }));
 
-    // 6. Top Expedisi & Layanan
+    // 6. Top Expedisi & Layanan (HARI INI)
     const expCountMap: { [key: string]: number } = {};
     const layCountMap: { [key: string]: number } = {};
 
     scansArr.forEach(s => {
-      if (s && s.expedisi && String(s.expedisi).trim() && String(s.expedisi).trim() !== "-") {
-        const expName = String(s.expedisi).trim();
-        expCountMap[expName] = (expCountMap[expName] || 0) + 1;
-      }
-      if (s && s.layanan && String(s.layanan).trim()) {
-        const layName = String(s.layanan).trim();
-        layCountMap[layName] = (layCountMap[layName] || 0) + 1;
+      const isToday = s && s.waktu && String(s.waktu).startsWith(todayYMD);
+      if (isToday) {
+        if (s && s.expedisi && String(s.expedisi).trim() && String(s.expedisi).trim() !== "-") {
+          const expName = String(s.expedisi).trim();
+          expCountMap[expName] = (expCountMap[expName] || 0) + 1;
+        }
+        if (s && s.layanan && String(s.layanan).trim()) {
+          const layName = String(s.layanan).trim();
+          layCountMap[layName] = (layCountMap[layName] || 0) + 1;
+        }
       }
     });
 

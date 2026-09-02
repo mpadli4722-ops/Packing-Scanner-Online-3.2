@@ -51,8 +51,8 @@ export default function Sidebar({ currentUser, currentTab, setTab, onLogout }: S
     {
       category: "Riwayat Scan",
       items: [
-        { id: "riwayat_24h", label: "Riwayat (24 Jam)", icon: History, roles: ["Administrator", "Supervisor", "Packing"] },
-        { id: "riwayat_all", label: "Riwayat Terdahulu", icon: Database, roles: ["Administrator", "Supervisor", "Packing"] },
+        { id: "riwayat_24h", label: "Riwayat Hari Ini", icon: History, roles: ["Administrator", "Supervisor", "Packing"] },
+        { id: "riwayat_all", label: "Riwayat", icon: Database, roles: ["Administrator", "Supervisor", "Packing"] },
         { id: "google_sheets", label: "Google Sheets", icon: FileSpreadsheet, roles: ["Administrator"] },
       ]
     },

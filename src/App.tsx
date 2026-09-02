@@ -256,7 +256,7 @@ export default function App() {
                       }`}
                     >
                       <History className="w-4.5 h-4.5 text-slate-500" />
-                      <span>Riwayat (24 Jam)</span>
+                      <span>Riwayat Hari Ini</span>
                     </button>
                     <button
                       onClick={() => {
@@ -270,7 +270,7 @@ export default function App() {
                       }`}
                     >
                       <Database className="w-4.5 h-4.5 text-slate-500" />
-                      <span>Riwayat Terdahulu</span>
+                      <span>Riwayat</span>
                     </button>
                     {hasRole(["Administrator"]) && (
                       <button

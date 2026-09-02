@@ -95,7 +95,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  const itemsPerPage = 5;
 
   // Sorting States
   const [sortField, setSortField] = useState<keyof ScanRecord>("waktu");
@@ -620,7 +620,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div>
           <h1 className="text-xl font-bold text-slate-800" id="hist-title-h1">
-            {range === "latest24h" ? "Riwayat Scan Terbaru (Hari Ini)" : "Riwayat Scan Terdahulu (Semua Waktu)"}
+            {range === "latest24h" ? "Riwayat Scan Terbaru (Hari Ini)" : "Riwayat Scan (Semua Waktu)"}
           </h1>
           <p className="text-slate-500 text-xs">
             {range === "latest24h" 
@@ -647,7 +647,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
             <>
               <button
                 onClick={handleExportExcel}
-                className="flex items-center gap-2 px-3 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
+                className="hidden flex items-center gap-2 px-3 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
                 title="Export ke Excel"
                 id="btn-export-excel"
               >
@@ -657,7 +657,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
 
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-3 py-2 text-xs font-bold bg-[#2563eb] hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
+                className="hidden flex items-center gap-2 px-3 py-2 text-xs font-bold bg-[#2563eb] hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
                 title="Cetak PDF / Print"
                 id="btn-export-pdf"
               >
@@ -722,7 +722,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
           </div>
 
           {/* Tanggal Mulai */}
-          <div className="space-y-1">
+          <div className={`space-y-1 ${range === "latest24h" ? "hidden" : ""}`}>
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Dari Tanggal</label>
             <div className="relative">
               <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
@@ -737,7 +737,7 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
           </div>
 
           {/* Tanggal Akhir */}
-          <div className="space-y-1">
+          <div className={`space-y-1 ${range === "latest24h" ? "hidden" : ""}`}>
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sampai Tanggal</label>
             <div className="relative">
               <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
@@ -877,8 +877,8 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
 
       {/* Main Table Card */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* Desktop View Table */}
-        <div className="overflow-x-auto w-full hidden sm:block">
+        {/* Desktop & Mobile View Table */}
+        <div className="overflow-x-auto w-full block">
           <table className="w-full border-collapse text-left text-xs text-slate-700">
             <thead className="bg-slate-50 border-b border-slate-200 font-bold uppercase tracking-wider text-slate-500">
               <tr>
@@ -1057,8 +1057,8 @@ export default function HistoryView({ range, currentUser }: HistoryViewProps) {
           </table>
         </div>
 
-        {/* Mobile View Card List */}
-        <div className="block sm:hidden divide-y divide-slate-100 bg-white">
+        {/* Mobile View Card List (Hidden per request) */}
+        <div className="hidden divide-y divide-slate-100 bg-white">
           {loading ? (
             <div className="text-center py-10 text-slate-400">
               <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>

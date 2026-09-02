@@ -5,6 +5,11 @@ import monolithApp from "./api/index";
 const app = express();
 const PORT = 3000;
 
+// API routes FIRST
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 // All API requests are forwarded to our monolithic application
 app.use(monolithApp);
 
@@ -30,8 +35,6 @@ async function startServer() {
   });
 }
 
-if (!process.env.VERCEL) {
-  startServer();
-}
+startServer();
 
 export default app;

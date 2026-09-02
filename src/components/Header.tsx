@@ -171,7 +171,7 @@ export default function Header({ currentUser, onLogout }: HeaderProps) {
 
         {/* Compact Mobile/Tablet Clock */}
         <div
-          className="hidden sm:flex xl:hidden items-center gap-1 text-[11px] font-mono font-bold text-blue-400 lg:text-blue-600 bg-slate-950 lg:bg-blue-50 px-2 py-0.5 rounded border border-slate-800 lg:border-blue-100"
+          className="flex xl:hidden items-center gap-1 text-[11px] font-mono font-bold text-blue-400 lg:text-blue-600 bg-slate-950 lg:bg-blue-50 px-2 py-0.5 rounded border border-slate-800 lg:border-blue-100"
         >
           <span style={{ color: "#2b7fff" }}>{time}</span>
         </div>
